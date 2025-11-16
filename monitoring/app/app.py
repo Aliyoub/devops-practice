@@ -14,10 +14,10 @@ RND_GAUGE = Gauge("demo_random_value", "Random gauge for demo")
 def index():
     REQUESTS.inc()
     IN_PROGRESS.inc()
-    # simulate work
+
     time.sleep(random.uniform(0.05, 0.3))
     IN_PROGRESS.dec()
-    # change gauge randomly
+
     RND_GAUGE.set(random.random() * 100)
     return "Hello from demo app\n"
 

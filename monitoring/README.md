@@ -161,3 +161,255 @@ monitoring-vagrant/
 Chaque fichier sera expliqué dans une section dédiée.
 
 ---
+
+<h2 align="center"><span style="color:#D24E42">IV - DESCRIPTION DÉTAILLÉE DES COMPOSANTS</span></h2>
+<h3 align="center"><span style="color:#D24E42">Vagrant - Docker - App - Prometheus - Grafana - Alertmanager</span></h3>
+
+# 1. **Vagrantfile — L'infrastructure reproductible**
+
+Le **Vagrantfile** sert de point d’entrée au projet. Il garantit que, peu importe la machine hôte, tu obtiens **exactement le même environnement de monitoring**.
+
+### Objectifs :
+
+* Créer automatiquement une VM Ubuntu.
+* Installer Docker & Docker Compose via un script de provisioning.
+* Monter le dossier du projet dans `/vagrant`.
+* Lancer tout le stack monitoring automatiquement.
+
+### Points clés du fichier :
+
+* **Box utilisée** : `ubuntu/jammy64`
+* **Mémoire + CPU** configurés (déterminants pour Prometheus & Grafana)
+* **Provisioning shell** exécutant `provision/install.sh`
+* **Forwarded ports** permettant :
+
+  * Accès à Grafana → `localhost:3002`
+  * Accès à Prometheus → `localhost:9090`
+  * Accès à l’API → `localhost:5000` (si exposée)
+
+### Pourquoi Vagrant ici ?
+
+* industrialiser un environnement,
+* indépendance vis à vis de la machine hôte,
+* possibilité de “livrer” un projet de monitoring clé-en-main à n’importe qui.
+
+**Capture d’écran :**
+`docs/screenshots/vagrant_up_success.png`
+→ sortie de `vagrant up` avec installation OK et lancement Docker OK.
+
+---
+
+# 2. **docker-compose.yml — L’orchestration des conteneurs**
+
+Le fichier `docker-compose.yml` orchestre l’ensemble du monitoring stack.
+
+Il démarre :
+
+* **Prometheus**
+* **Grafana**
+* **Alertmanager**
+* **Node Exporter**
+* **cAdvisor**
+* **L’API Python monitorée**
+
+### Objectifs :
+
+* Lancer toutes les briques d’observabilité en un seul `docker compose up -d`.
+* Définir les réseaux, volumes, dépendances.
+* Exposer les ports nécessaires.
+
+### Points clés :
+
+✔ Définit deux réseaux :
+
+* `monitoring` → pour les composants du stack
+* `backend` → pour l’application
+
+✔ Monte les dossiers de configuration :
+
+```
+prometheus.yml
+alert.rules.yml
+dashboards_json/
+```
+
+✔ Associe les ports externes aux services internes :
+
+* Grafana → 3002 → 3000
+* Prometheus → 9090 → 9090
+* Alertmanager → 9093 → 9093
+
+✔ Déclare les **dependencies** (ex : Grafana dépend de Prometheus)
+
+**Capture d’écran :**
+`docs/screenshots/docker_ps_full_stack.png`
+→ affichage des 6 services UP.
+
+---
+
+# 3. **L'application Python — L’élément instrumenté**
+
+L’application Python est un petit service web Flask exposant :
+
+* un endpoint HTTP `/`
+* un endpoint `/metrics` contenant des **métriques Prometheus entièrement personnalisées**
+
+### Structure :
+
+```
+python-app/
+│ app.py
+│ requirements.txt
+│ Dockerfile
+```
+
+---
+
+## 3.1. **App.py — Instrumentation avancée**
+
+Ce fichier :
+
+* crée un serveur Flask,
+* expose un "Hello World",
+* expose les métriques Prometheus via `prometheus_client`.
+
+### Métriques personnalisées :
+
+Tu exposes par exemple :
+
+* **counter** : `demo_requests_total`
+* **gauge** : valeur aléatoire
+* **summary/histogram** : latence (si tu l'ajoutes)
+* **inprogress** : requêtes en cours
+
+Ces métriques permettent de remplir les dashboards Grafana.
+
+**Capture d’écran :**
+`docs/screenshots/curl_metrics.png`
+→ résultat de `curl localhost:5000/metrics`.
+
+---
+
+## 3.2. **Dockerfile — Containerisation de l’API**
+
+Le Dockerfile :
+
+* construit l’image de l’application,
+* installe python et les dépendances,
+* copie le code,
+* expose le port 5000,
+* lance l’app via Flask.
+
+### Objectifs :
+
+* garantir que l’application peut tourner partout,
+* être compatible avec docker-compose,
+* s’intégrer dans la stack Prometheus → Grafana.
+
+
+# 4. **Prometheus — Le moteur de collecte**
+
+## 4.1. prometheus.yml
+
+Ce fichier :
+
+* configure les jobs de scraping
+* définit les labels
+* active les alertes via Alertmanager
+
+### Les jobs importants :
+
+1. **Application Python**
+
+```
+job_name: "demo-app"
+static_configs:
+  - targets: ["demo-app:5000"]
+```
+
+2. **Node Exporter (VM)**
+
+```
+targets: ["node_exporter:9100"]
+```
+
+3. **cAdvisor (Docker containers)**
+
+```
+targets: ["cadvisor:8080"]
+```
+
+4. **Prometheus lui-même**
+
+```
+targets: ["localhost:9090"]
+```
+
+**Capture d’écran :**
+`docs/screenshots/prometheus_targets.png`
+→ page `/targets` montrant tous les services UP.
+
+---
+
+## 4.2. alert.rules.yml — Les règles d’alerte
+
+Ce fichier contient des alertes comme :
+
+* **API down**
+* **latence élevée**
+* **node à plus de 80% CPU**
+* **disque presque plein**
+
+
+**Capture d’écran :**
+`docs/screenshots/prometheus_alerts.png`
+→ page `/alerts`.
+
+---
+
+# 5. **Alertmanager — Gestion des alertes**
+
+Le service Alertmanager permet d’envoyer des notifications :
+
+* par email,
+* vers Slack,
+* via webhook,
+* vers PagerDuty, etc.
+
+### Fichier fourni :
+
+`alertmanager.yml`
+
+Il définit :
+
+* les routes d’alertes,
+* les templates,
+* le group_interval,
+* les receivers (exemple : email ou Slack).
+
+**Capture d’écran :**
+`docs/screenshots/alertmanager_ui.png`
+→ UI Alertmanager indiquant les alertes reçues.
+
+---
+
+# 6. **Grafana — Visualisation et dashboards auto-provisionnés**
+
+Le projet inclut :
+
+* un fichier de provisioning (`grafana/provisioning/...`)
+* un dashboard JSON prêt à l’emploi
+
+### Dashboard fourni :
+
+* charge CPU VM
+* RAM + disque
+* latence app Python
+* nombre de requêtes demo-app
+* métriques des containers via cAdvisor
+
+**Capture d’écran :**
+`docs/screenshots/grafana_app_dashboard.png`
+→ ton dashboard affiché.
+
+---
