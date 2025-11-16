@@ -10,7 +10,7 @@ docker compose up -d
 ![alt prometheus grafana alertmanager](prom-graf-alert.png)
 
 <h1 align="center"><span style="color:#D24E42">MONITORING & OBSERVABILITY</span></h1>
-<h2 align="center">🎨 Stack :  Vagrant - Docker - Prometheus - Grafana - Alertmanager</h2>
+<h2 align="center"><span style='color:#D24E42'>Stack :  Vagrant - Docker - Prometheus - Grafana - Alertmanager</span></h2>
 
 Ce projet a pour objectif de construire **un environnement complet et reproductible de monitoring, d’alerting et d’observabilité**, similaire à ce que l’on retrouve dans une architecture de production moderne.
 
