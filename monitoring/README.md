@@ -57,7 +57,7 @@ Lorsque l’on lance l’environnement avec `vagrant up`, la VM installe automat
 ### 🔹 **4. Alertmanager**
 
 → gère les alertes configurées dans Prometheus
-→ peut notifier (email, Slack, webhook…)
+→ On pourra implémenter la notification (email, Slack, webhook…)
 
 ### 🔹 **5. Node Exporter**
 
