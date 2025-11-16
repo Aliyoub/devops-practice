@@ -165,7 +165,7 @@ Chaque fichier sera expliqué dans une section dédiée.
 <h2 align="center"><span style="color:#D24E42">IV - DESCRIPTION DÉTAILLÉE DES COMPOSANTS</span></h2>
 <h3 align="center"><span style="color:#D24E42">Vagrant - Docker - App - Prometheus - Grafana - Alertmanager</span></h3>
 
-# 1. **Vagrantfile — L'infrastructure reproductible**
+### 1. **Vagrantfile — L'infrastructure reproductible**
 
 Le **Vagrantfile** sert de point d’entrée au projet. Il garantit que, peu importe la machine hôte, tu obtiens **exactement le même environnement de monitoring**.
 
@@ -199,7 +199,7 @@ Le **Vagrantfile** sert de point d’entrée au projet. Il garantit que, peu imp
 
 ---
 
-# 2. **docker-compose.yml — L’orchestration des conteneurs**
+### 2. **docker-compose.yml — L’orchestration des conteneurs**
 
 Le fichier `docker-compose.yml` orchestre l’ensemble du monitoring stack.
 
@@ -247,7 +247,7 @@ dashboards_json/
 
 ---
 
-# 3. **L'application Python — L’élément instrumenté**
+### 3. **L'application Python — L’élément instrumenté**
 
 L’application Python est un petit service web Flask exposant :
 
@@ -265,7 +265,7 @@ python-app/
 
 ---
 
-## 3.1. **App.py — Instrumentation avancée**
+### 3.1. **App.py — Instrumentation avancée**
 
 Ce fichier :
 
@@ -290,7 +290,7 @@ Ces métriques permettent de remplir les dashboards Grafana.
 
 ---
 
-## 3.2. **Dockerfile — Containerisation de l’API**
+### 3.2. **Dockerfile — Containerisation de l’API**
 
 Le Dockerfile :
 
@@ -307,9 +307,9 @@ Le Dockerfile :
 * s’intégrer dans la stack Prometheus → Grafana.
 
 
-# 4. **Prometheus — Le moteur de collecte**
+### 4. **Prometheus — Le moteur de collecte**
 
-## 4.1. prometheus.yml
+### 4.1. prometheus.yml
 
 Ce fichier :
 
@@ -351,7 +351,7 @@ targets: ["localhost:9090"]
 
 ---
 
-## 4.2. alert.rules.yml — Les règles d’alerte
+### 4.2. alert.rules.yml — Les règles d’alerte
 
 Ce fichier contient des alertes comme :
 
@@ -367,7 +367,7 @@ Ce fichier contient des alertes comme :
 
 ---
 
-# 5. **Alertmanager — Gestion des alertes**
+### 5. **Alertmanager — Gestion des alertes**
 
 Le service Alertmanager permet d’envoyer des notifications :
 
@@ -393,7 +393,7 @@ Il définit :
 
 ---
 
-# 6. **Grafana — Visualisation et dashboards auto-provisionnés**
+### 6. **Grafana — Visualisation et dashboards auto-provisionnés**
 
 Le projet inclut :
 
