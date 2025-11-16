@@ -1,0 +1,22 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: "debug-webhook"
+  group_by: ["alertname", "job"]
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 1h
+
+receivers:
+  - name: "debug-webhook"
+    webhook_configs:
+      - url: "http://localhost:5001/" # placeholder : tu peux remplacer par ton webhook de test
+
+
+  # Exemple : receiver pour e-mail (à configurer si tu veux)
+  # - name: 'team-email'
+  #   email_configs:
+  #     - to: 'oncall@example.com'
+  #       from: 'alertmanager@example.com'
+  #       smarthost: 'smtp.example.com:587'

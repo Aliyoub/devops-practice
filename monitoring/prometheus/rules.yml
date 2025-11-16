@@ -1,0 +1,30 @@
+# Exemples de règles
+
+groups:
+  - name: demo-alerts
+    rules:
+      - alert: DemoAppHighErrorRate
+        expr: increase(demo_requests_total[1m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Trop de requêtes sur demo-app ({{ $labels.instance }})"
+          description: "Plus de 100 requêtes par minute."
+
+      - alert: DemoAppDown
+        expr: up{job="demo-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "demo-app est down"
+          description: "L'endpoint /metrics n'est plus joignable."
+
+      - alert: HostCpuHigh
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU élevé sur {{ $labels.instance }}"

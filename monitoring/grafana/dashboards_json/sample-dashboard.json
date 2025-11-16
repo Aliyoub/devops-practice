@@ -1,0 +1,28 @@
+{
+  "id": null,
+  "uid": null,
+  "title": "Demo App + Node exporter",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Demo Random Gauge",
+      "targets": [
+        {
+          "expr": "demo_random_value",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {"h":8,"w":24,"x":0,"y":0}
+    },
+    {
+      "type": "stat",
+      "title": "Requests total",
+      "targets": [
+        { "expr": "demo_requests_total", "refId": "B" }
+      ],
+      "gridPos": {"h":4,"w":8,"x":0,"y":8}
+    }
+  ],
+  "schemaVersion": 27,
+  "version": 1
+}
