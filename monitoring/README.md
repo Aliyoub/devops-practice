@@ -9,6 +9,6 @@ docker compose up -d
 
 ![alt prometheus grafana alertmanager](prom-graf-alert.png)
 
-# Monitoring & Observability 
-## Stack :  Vagrant - Docker - Prometheus - Alertmanager
+<h1 align="center"><span style="color:red">MONITORING & OBSERVABILITY</span></h1>
+<h2 align="center"><span style="color:red">Stack :  Vagrant - Docker - Prometheus - Grafana - Alertmanager</span></h2>
 
